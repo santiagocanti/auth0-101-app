@@ -2,27 +2,30 @@ import auth0 from 'auth0-js';
 import { AUTH_CONFIG } from './auth0-variables';
 import history from '../history';
 
+
+
 export default class Auth {
+  requestedScopes = 'openid profile read:messages write:messages';
+  userProfile;
+
   auth0 = new auth0.WebAuth({
     domain: AUTH_CONFIG.domain,
     clientID: AUTH_CONFIG.clientId,
     redirectUri: AUTH_CONFIG.callbackUrl,
     audience: `http://api.auth0101.com`, 
     responseType: 'token id_token',
-    scope: 'openid profile read:messages'
+    scope: this.requestedScopes
   });
-
-  userProfile;
 
   constructor() {
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.handleAuthentication = this.handleAuthentication.bind(this);
     this.isAuthenticated = this.isAuthenticated.bind(this);
+    this.userHasScopes = this.userHasScopes.bind(this);
     this.getAccessToken = this.getAccessToken.bind(this);
     this.getProfile = this.getProfile.bind(this);
     this.authFetch = this.authFetch.bind(this);
-    this.checkStatus = this.checkStatus.bind(this);
   }
 
   login() {
@@ -47,9 +50,12 @@ export default class Auth {
     let expiresAt = JSON.stringify(
       authResult.expiresIn * 1000 + new Date().getTime()
     );
+
+    const scopes = authResult.scope || this.requestedScopes || '';
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('id_token', authResult.idToken);
     localStorage.setItem('expires_at', expiresAt);
+    localStorage.setItem('scopes', JSON.stringify(scopes));
     // navigate to the home route
     history.replace('/home');
   }
@@ -60,6 +66,11 @@ export default class Auth {
       throw new Error('No access token found');
     }
     return accessToken;
+  }
+
+  userHasScopes(scopes) {
+    const grantedScopes = JSON.parse(localStorage.getItem('scopes')).split(' ');
+    return scopes.every(scope => grantedScopes.includes(scope));
   }
 
   getProfile(cb) {

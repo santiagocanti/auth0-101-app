@@ -40,6 +40,13 @@ export const makeMainRoutes = () => {
             handleAuthentication(props);
             return <Callback {...props} /> 
           }}/>
+          <Route path="/admin" render={(props) => (
+            !auth.isAuthenticated() || !auth.userHasScopes(['write:messages']) ? (
+              <Redirect to="/home"/>
+            ) : (
+              <Ping auth={auth} {...props} />
+            )
+          )} />
         </div>
       </BrowserRouter>
   );

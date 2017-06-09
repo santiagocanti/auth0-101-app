@@ -16,7 +16,7 @@ class App extends Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props.auth;
+    const { isAuthenticated, userHasScopes } = this.props.auth;
 
     return (
       <div>
@@ -73,6 +73,17 @@ class App extends Component {
                     onClick={this.goTo.bind(this, 'ping')}
                   >
                     Private place
+                  </Button>
+                )
+            }
+            {
+              isAuthenticated() &&  (//userHasScopes(['write:messages']) && (
+                  <Button
+                    bsStyle="primary"
+                    className="btn-margin"
+                    onClick={this.goTo.bind(this, 'admin')}
+                  >
+                    Admin
                   </Button>
                 )
             }
