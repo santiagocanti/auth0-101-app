@@ -70,7 +70,7 @@ class App extends Component {
                   <Button
                     bsStyle="primary"
                     className="btn-margin"
-                    onClick={this.logout.bind(this)}
+                    onClick={this.goTo.bind(this, 'ping')}
                   >
                     Private place
                   </Button>
